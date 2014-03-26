@@ -1,0 +1,19 @@
+{
+  "author": {
+    "name": "Websanova",
+    "url": "http://websanova.com",
+    "email": "rob@websanova.com"
+  },
+  "dependencies": {},
+  "description": "A simple url parsing library.",
+  "licenses": "MIT, GPL",
+  "devDependencies": {},
+  "keywords": ["util", "url", "parse"],
+  "main": "url.js",
+  "name": "url",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/websanova/node-url"
+  },
+  "version": "1.0.0"
+}
