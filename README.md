@@ -20,7 +20,7 @@ npm install wurl
 ## Examples
 
 ```js
-var url = require('url');
+var wurl = require('./wurl');
 var testURL = 'http://rob:abcd1234@www.example.com/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese';
 
 wurl('domain', testURL);    // example.com
