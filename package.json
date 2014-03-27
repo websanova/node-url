@@ -9,11 +9,11 @@
   "licenses": "MIT, GPL",
   "devDependencies": {},
   "keywords": ["util", "url", "parse"],
-  "main": "url.js",
+  "main": "wurl.js",
   "name": "wurl",
   "repository": {
     "type": "git",
     "url": "https://github.com/websanova/node-url"
   },
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
