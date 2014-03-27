@@ -3,8 +3,11 @@
 A simple url parsing library for Node.js.
 
 * [View the url demo](http://url.websanova.com)
-* [Download the lastest version of url](https://github.com/websanova/node-url/tags)
+* [Download the lastest version of node-url](https://github.com/websanova/node-url/tags)
 
+Also available for JavaScript and jQuery on the web.
+
+* [Download the lastest version of js-url](https://github.com/websanova/js-url/tags)
 
 ## Notes
 
