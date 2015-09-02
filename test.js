@@ -11,113 +11,168 @@ function strictEqual(a, b) {
 }
 
 // Test URLs.
-var testUrl = 'http://rob:abcd1234@www.domain.com/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese',
-    testHttps = 'https://rob:abcd1234@www.domain.com/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese',
-    testIp = 'https://rob:abcd1234@1.2.3.4/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese';
+var url = 'http://rob:abcd1234@www.domain.com/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese',
+    urlHttps = 'https://rob:abcd1234@www.domain.com/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese',
+    urlIp = 'https://rob:abcd1234@1.2.3.4/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese';
 
-// Test dead values.
-strictEqual(wurl('', testUrl), testUrl);
-strictEqual(wurl(null, testUrl), testUrl);
-strictEqual(wurl(undefined, testUrl), testUrl);
-strictEqual(wurl('domain'), undefined);
-strictEqual(wurl('domain', ''), undefined);
-strictEqual(wurl('domain', null), undefined);
-strictEqual(wurl('domain', undefined), undefined);
+/*strictEqual( wurl('[]', url), {
+  'auth': 'rob:abcd1234',
+  'domain': 'domain.com',
+  'file': 'index.html',
+  'fileext': 'html',
+  'filename': 'index',
+  'hash': 'test=hash&chucky=cheese',
+  'hostname': 'www.domain.com',
+  'pass': 'abcd1234',
+  'path': '/path/index.html',
+  'port': '80',
+  'protocol': 'http',
+  'query': 'query1=test&silly=willy',
+  'sub': 'www',
+  'tld': 'com',
+  'user': 'rob'
+});*/
+  
+strictEqual( wurl('tld', 'http://sub.www.domain.co.uk'), 'co.uk' );
+strictEqual( wurl('tld', 'http://www.domain.org.uk'), 'org.uk' );
+strictEqual( wurl('tld', 'http://domain.la'), 'la' );
+strictEqual( wurl('tld', 'http://in'), 'in' );
+strictEqual( wurl('tld', 'http://.asia'), 'asia' );
+strictEqual( wurl('tld', 'http://.cao.uk'), undefined );
+strictEqual( wurl('tld', 'http://'), undefined );
+strictEqual( wurl('tld', 'http://domain.zoo'), undefined );
+strictEqual( wurl('tld', url), 'com' );
 
-// Test domain.
-strictEqual(wurl('domain', testUrl), 'domain.com');
-strictEqual(wurl('domain', testHttps), 'domain.com');
-strictEqual(wurl('domain', testIp), '1.2.3.4');
+strictEqual( wurl('domain', 'http://sub.www.domain.co.uk'), 'domain.co.uk' );
+strictEqual( wurl('domain', 'http://www.domain.org.uk'), 'domain.org.uk' );
+strictEqual( wurl('domain', 'http://domain.la'), 'domain.la' );
+strictEqual( wurl('domain', 'http://in'), undefined );
+strictEqual( wurl('domain', 'http://.asia'), undefined );
+strictEqual( wurl('domain', 'http://.cao.uk'), undefined );
+strictEqual( wurl('domain', 'http://'), undefined );
+strictEqual( wurl('domain', 'http://domain.zoo'), undefined );
+strictEqual( wurl('domain', url), 'domain.com' );
 
-// Test hostname.
-strictEqual(wurl('hostname', testUrl), 'www.domain.com');
-strictEqual(wurl('hostname', testHttps), 'www.domain.com');
-strictEqual(wurl('hostname', testIp), '1.2.3.4');
+strictEqual( wurl('sub', 'http://sub.www.domain.co.uk'), 'sub.www' );
+strictEqual( wurl('sub', 'http://www.domain.org.uk'), 'www' );
+strictEqual( wurl('sub', 'http://domain.la'), undefined );
+strictEqual( wurl('sub', 'http://in'), undefined );
+strictEqual( wurl('sub', 'http://.asia'), undefined );
+strictEqual( wurl('sub', 'http://.cao.uk'), undefined );
+strictEqual( wurl('sub', 'http://'), undefined );
+strictEqual( wurl('sub', 'http://domain.zoo'), undefined );
+strictEqual( wurl('sub', url), 'www' );
 
-// Test sub.
-strictEqual(wurl('sub', testUrl), 'www');
+strictEqual( wurl( 'hostname', url ), 'www.domain.com' );
+strictEqual( wurl( 'hostname', urlIp ), '1.2.3.4' );
 
-// Test domain index.
-strictEqual(wurl('.0', testUrl), '');
-strictEqual(wurl('.1', testUrl), 'www');
-strictEqual(wurl('.2', testUrl), 'domain');
-strictEqual(wurl('.-1', testUrl), 'com');
+//strictEqual( wurl( '.', url ), ['www', 'domain', 'com'] );
+strictEqual( wurl( '.0', url ), undefined );
+strictEqual( wurl( '.1', url ), 'www' );
+strictEqual( wurl( '.2', url ), 'domain' );
+strictEqual( wurl( '.-1', url ), 'com' );
 
-// Test auth.
-strictEqual(wurl('auth', testUrl), 'rob:abcd1234');
+strictEqual( wurl( 'auth', url ), 'rob:abcd1234' );
 
-// Test user.
-strictEqual(wurl('user', testUrl), 'rob');
+strictEqual( wurl( 'user', url ), 'rob' );
+strictEqual( wurl( 'email', 'mailto:rob@websanova.com' ), 'rob@websanova.com' );
 
-// Test port.
-strictEqual(wurl('port', testUrl), '80');
-strictEqual(wurl('port', testUrl.toUpperCase() ), '80');
-strictEqual(wurl('port', "http://example.com:80" ), '80');
-strictEqual(wurl('port', testHttps ), '443');
-strictEqual(wurl('port', testHttps.toUpperCase() ), '443');
-strictEqual(wurl('port', "https://example.com:443" ), '443');
+strictEqual( wurl( 'pass', url ), 'abcd1234' );
 
-// Test pass.
-strictEqual(wurl('pass', testUrl), 'abcd1234');
+strictEqual( wurl( 'port', url ), '80' );
+strictEqual( wurl( 'port', url.toUpperCase() ), '80' );
+strictEqual( wurl( 'port', 'http://example.com:80' ), '80' );
+strictEqual( wurl( 'port', urlHttps ), '443' );
+strictEqual( wurl( 'port', urlHttps.toUpperCase() ), '443' );
+strictEqual( wurl( 'port', 'https://example.com:443' ), '443' );
+strictEqual( wurl( 'port', 'http://domain.com:400?poo=a:b' ), '400' );
+strictEqual( wurl( 'port', 'https://domain.com:80' ), '80' );
+strictEqual( wurl( 'port', 'http://domain.com:443' ), '443' );
+strictEqual( wurl( 'port', 'http://domain.com' ), '80' );
+strictEqual( wurl( 'port', 'https://domain.com' ), '443' );
 
-// Test protocol.
-strictEqual(wurl('protocol', testUrl), 'http');
+strictEqual( wurl( 'protocol', 'http://domain.com' ), 'http' );
+strictEqual( wurl( 'protocol', 'http://domain.com:80' ), 'http' );
+strictEqual( wurl( 'protocol', 'http://domain.com:443' ), 'http' );
+strictEqual( wurl( 'protocol', 'domain.com' ), 'http' );
+strictEqual( wurl( 'protocol', 'domain.com:80' ), 'http' );
+strictEqual( wurl( 'protocol', 'domain.com:443' ), 'https' );
+strictEqual( wurl( 'protocol', 'https://domain.com:443' ), 'https' );
+strictEqual( wurl( 'protocol', 'https://domain.com:80' ), 'https' );
+strictEqual( wurl( 'protocol', 'mailto:rob@websanova.com' ), 'mailto' );
 
-// Test path.
-strictEqual(wurl('path', testUrl), '/path/index.html');
-strictEqual(wurl('path', 'http://www.domain.com/first/second' ), '/first/second');
-strictEqual(wurl('path', 'http://www.domain.com/first/second/' ), '/first/second/');
-strictEqual(wurl('path', 'http://www.domain.com:8080/first/second' ), '/first/second');
-strictEqual(wurl('path', 'http://www.domain.com:8080/first/second/' ), '/first/second/');
-strictEqual(wurl('path', 'http://www.domain.com/first/second?test=foo' ), '/first/second');
-strictEqual(wurl('path', 'http://www.domain.com/first/second/?test=foo' ), '/first/second/');
-strictEqual(wurl('path', 'http://www.domain.com/path#anchor' ), '/path');
-strictEqual(wurl('path', 'http://www.domain.com/path/#anchor' ), '/path/');
-strictEqual(wurl('path', 'http://www.domain.com' ), '');
-strictEqual(wurl('path', 'http://www.domain.com/' ), '/');
-strictEqual(wurl('path', 'http://www.domain.com#anchor' ), '');
-strictEqual(wurl('path', 'http://www.domain.com/#anchor' ), '/');
-strictEqual(wurl('path', 'http://www.domain.com?test=foo' ), '');
-strictEqual(wurl('path', 'http://www.domain.com/?test=foo' ), '/');
-strictEqual(wurl('path', 'http://www.domain.com:80' ), '');
-strictEqual(wurl('path', 'http://www.domain.com:80/' ), '/');
-strictEqual(wurl('path', 'http://www.domain.com:80#anchor' ), '');
-strictEqual(wurl('path', 'http://www.domain.com:80/#anchor' ), '/');
-strictEqual(wurl('path', 'http://www.domain.com:80?test=foo' ), '');
-strictEqual(wurl('path', 'http://www.domain.com:80/?test=foo' ), '/');
+strictEqual( wurl( 'path', url ), '/path/index.html' );
+strictEqual( wurl( 'path', 'http://www.domain.com/first/second' ), '/first/second' );
+strictEqual( wurl( 'path', 'http://www.domain.com/first/second/' ), '/first/second' );
+strictEqual( wurl( 'path', 'http://www.domain.com:8080/first/second' ), '/first/second' );
+strictEqual( wurl( 'path', 'http://www.domain.com:8080/first/second/' ), '/first/second' );
+strictEqual( wurl( 'path', 'http://www.domain.com/first/second?test=foo' ), '/first/second' );
+strictEqual( wurl( 'path', 'http://www.domain.com/first/second/?test=foo' ), '/first/second' );
+strictEqual( wurl( 'path', 'http://www.domain.com/path#anchor' ), '/path' );
+strictEqual( wurl( 'path', 'http://www.domain.com/path/#anchor' ), '/path' );
+strictEqual( wurl( 'path', 'http://www.domain.com' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com/' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com#anchor' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com/#anchor' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com?test=foo' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com/?test=foo' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com:80' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com:80/' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com:80#anchor' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com:80/#anchor' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com:80?test=foo' ), '' );
+strictEqual( wurl( 'path', 'http://www.domain.com:80/?test=foo' ), '' );
 
-// Test file.
-strictEqual(wurl('file', testUrl), 'index.html');
-strictEqual(wurl('filename', testUrl), 'index');
-strictEqual(wurl('fileext', testUrl), 'html');
+strictEqual( wurl( 'file', url ), 'index.html' );
+strictEqual( wurl( 'filename', url ), 'index' );
+strictEqual( wurl( 'fileext', url ), 'html' );
 
-// Test path index.
-strictEqual(wurl('1', testUrl), 'path');
-strictEqual(wurl(1, testUrl), 'path');
-strictEqual(wurl('2', testUrl), 'index.html');
-strictEqual(wurl('3', testUrl), '');
-strictEqual(wurl('-1', testUrl), 'index.html');
-strictEqual(wurl('1', 'http://www.domain.com/first/second' ), 'first');
-strictEqual(wurl('1', 'http://www.domain.com/first/second/' ), 'first');
-strictEqual(wurl('-1', 'http://www.domain.com/first/second?test=foo' ), 'second');
-strictEqual(wurl('-1', 'http://www.domain.com/first/second/?test=foo' ), 'second');
+//strictEqual( wurl( '/', url ), ['path', 'index.html'] );
+strictEqual( wurl( '0', url ), undefined );
+strictEqual( wurl( '-4', url ), undefined );
+strictEqual( wurl( '1', url ), 'path' );
+strictEqual( wurl( 1, url ), 'path' );
+strictEqual( wurl( '2', url ), 'index.html' );
+strictEqual( wurl( '3', url ), undefined );
+strictEqual( wurl( '-1', url ), 'index.html' );
+strictEqual( wurl( '1', 'http://www.domain.com/first/second' ), 'first' );
+strictEqual( wurl( '1', 'http://www.domain.com/first/second/' ), 'first' );
+strictEqual( wurl( '-1', 'http://www.domain.com/first/second?test=foo' ), 'second' );
+strictEqual( wurl( '-1', 'http://www.domain.com/first/second/?test=foo' ), 'second' );
 
-// Test query string param
-strictEqual(wurl('?', testUrl), 'query1=test&silly=willy');
-strictEqual(wurl('?silly', testUrl), 'willy');
-strictEqual(wurl('?poo', testUrl), null);
-strictEqual(wurl('?poo', 'http://domain.com?poo=' ), '');
-strictEqual(wurl('?poo', 'http://domain.com/?poo' ), '');
-strictEqual(wurl('?poo', 'http://domain.com?poo' ), '');
-strictEqual(wurl('?poo', 'http://domain.com?' ), null);
-strictEqual(wurl('?poo', 'http://domain.com' ), null);
+strictEqual( wurl( 'query', url ), 'query1=test&silly=willy' );
+//strictEqual( wurl( '?', url ), {'query1': 'test', 'silly': 'willy'} );
+strictEqual( wurl( '?silly', url ), 'willy' );
+strictEqual( wurl( '?poo', url ), undefined );
+strictEqual( wurl( '?poo', 'http://domain.com?poo=' ), '' );
+strictEqual( wurl( '?poo', 'http://domain.com/?poo' ), '' );
+strictEqual( wurl( '?poo', 'http://domain.com?poo' ), '' );
+strictEqual( wurl( '?poo', 'http://domain.com?' ), undefined );
+strictEqual( wurl( '?poo', 'http://domain.com' ), undefined );
+strictEqual( wurl( '?poo', 'http://domain.com?poo=a+b' ), 'a b' );
+strictEqual( wurl( '?poo', 'http://domain.com?poo=javascript%20decode%20uri%20%2B%20sign%20to%20space' ), 'javascript decode uri + sign to space' );
+strictEqual( wurl( '?key', 'http://domain.com?key=value=va?key2=value' ), 'value=va?key2=value');
+strictEqual( wurl( '?poo', 'http://domain.com:400?poo=a:b' ), 'a:b' );
+strictEqual( wurl( '?poo', 'http://domain.com:400? & & &' ), undefined );
 
-// Test hash string param.
-strictEqual(wurl('#', testUrl), 'test=hash&chucky=cheese');
-strictEqual(wurl('#chucky', testUrl), 'cheese');
-strictEqual(wurl('#poo', testUrl), null);
-strictEqual(wurl('#poo', 'http://domain.com#poo=' ), '');
-strictEqual(wurl('#poo', 'http://domain.com/#poo' ), '');
-strictEqual(wurl('#poo', 'http://domain.com#poo' ), '');
-strictEqual(wurl('#poo', 'http://domain.com#' ), null);
-strictEqual(wurl('#poo', 'http://domain.com' ), null);
+strictEqual( wurl( '?field[0]', 'http://domain.com?field[0]=zero&firled[1]=one' ), 'zero' );
+//strictEqual( wurl( '?field', 'http://domain.com?field[0]=zero&field[1]=one&var=test' ), ['zero', 'one'] );
+//strictEqual( wurl( '?field', 'http://domain.com?field[0]=zero&field[3]=one&var=test' ), ['zero', undefined, undefined, 'one'] );
+strictEqual( wurl( '?var', 'http://domain.com?field[0]=zero&field[3]=one&var=test' ), 'test' );
+//strictEqual( wurl( '?', 'http://domain.com?field[0]=zero&field[1]=one&var=test' ), {'field': ['zero', 'one'], 'var': 'test'} );
+
+strictEqual( wurl( 'hash', url ), 'test=hash&chucky=cheese' );
+//strictEqual( wurl( '#', url ), {'chucky': 'cheese', 'test': 'hash'} );
+strictEqual( wurl( '#chucky', url ), 'cheese' );
+strictEqual( wurl( '#poo', url ), undefined );
+strictEqual( wurl( '#poo', 'http://domain.com#poo=' ), '' );
+strictEqual( wurl( '#poo', 'http://domain.com/#poo' ), '' );
+strictEqual( wurl( '#poo', 'http://domain.com#poo' ), '' );
+strictEqual( wurl( '#poo', 'http://domain.com#' ), undefined );
+strictEqual( wurl( '#poo', 'http://domain.com' ), undefined );
+
+strictEqual( wurl( '#field[0]', 'http://domain.com#field[0]=zero&firled[1]=one' ), 'zero' );
+//strictEqual( wurl( '#field', 'http://domain.com#field[0]=zero&field[1]=one&var=test' ), ['zero', 'one'] );
+//strictEqual( wurl( '#field', 'http://domain.com#field[0]=zero&field[3]=one&var=test' ), ['zero', undefined, undefined, 'one'] );
+strictEqual( wurl( '#var', 'http://domain.com#field[0]=zero&field[3]=one&var=test' ), 'test' );
+//strictEqual( wurl( '#', 'http://domain.com#field[0]=zero&field[1]=one&var=test' ), {'field': ['zero', 'one'], 'var': 'test'} );
