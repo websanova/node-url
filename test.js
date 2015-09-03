@@ -155,7 +155,7 @@ strictEqual( wurl( '?key', 'http://domain.com?key=value=va?key2=value' ), 'value
 strictEqual( wurl( '?poo', 'http://domain.com:400?poo=a:b' ), 'a:b' );
 strictEqual( wurl( '?poo', 'http://domain.com:400? & & &' ), undefined );
 
-strictEqual( wurl( '?field[0]', 'http://domain.com?field[0]=zero&firled[1]=one' ), 'zero' );
+strictEqual( wurl( '?field[0]', 'http://domain.com?field[0]=zero&field[1]=one' ), 'zero' );
 //strictEqual( wurl( '?field', 'http://domain.com?field[0]=zero&field[1]=one&var=test' ), ['zero', 'one'] );
 //strictEqual( wurl( '?field', 'http://domain.com?field[0]=zero&field[3]=one&var=test' ), ['zero', undefined, undefined, 'one'] );
 strictEqual( wurl( '?var', 'http://domain.com?field[0]=zero&field[3]=one&var=test' ), 'test' );
@@ -171,7 +171,7 @@ strictEqual( wurl( '#poo', 'http://domain.com#poo' ), '' );
 strictEqual( wurl( '#poo', 'http://domain.com#' ), undefined );
 strictEqual( wurl( '#poo', 'http://domain.com' ), undefined );
 
-strictEqual( wurl( '#field[0]', 'http://domain.com#field[0]=zero&firled[1]=one' ), 'zero' );
+strictEqual( wurl( '#field[0]', 'http://domain.com#field[0]=zero&field[1]=one' ), 'zero' );
 //strictEqual( wurl( '#field', 'http://domain.com#field[0]=zero&field[1]=one&var=test' ), ['zero', 'one'] );
 //strictEqual( wurl( '#field', 'http://domain.com#field[0]=zero&field[3]=one&var=test' ), ['zero', undefined, undefined, 'one'] );
 strictEqual( wurl( '#var', 'http://domain.com#field[0]=zero&field[3]=one&var=test' ), 'test' );
