@@ -153,7 +153,7 @@ module.exports = function (arg, url) {
     if (arg in _l) { return _l[arg]; }
 
     // Return everything.
-    if (arg === '[]') { return _l; }
+    if (arg === '{}') { return _l; }
 
     // Default to undefined for no match.
     return undefined;

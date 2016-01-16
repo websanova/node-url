@@ -15,7 +15,7 @@ var url = 'http://rob:abcd1234@www.domain.com/path/index.html?query1=test&silly=
     urlHttps = 'https://rob:abcd1234@www.domain.com/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese',
     urlIp = 'https://rob:abcd1234@1.2.3.4/path/index.html?query1=test&silly=willy#test=hash&chucky=cheese';
 
-/*strictEqual( wurl('[]', url), {
+/*strictEqual( wurl('{}', url), {
   'auth': 'rob:abcd1234',
   'domain': 'domain.com',
   'file': 'index.html',
