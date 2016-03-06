@@ -27,7 +27,7 @@ module.exports = function (arg, url) {
             tmp = [],
             arg2 = arg.substring(1);
 
-        for (var i in split) {
+        for (var i = 0, ii = split.length; i < ii; i++) {
             field = split[i].split(/=(.*)/);
 
             if (field[0].replace(/\s/g, '') !== '') {
