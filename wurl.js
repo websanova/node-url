@@ -72,11 +72,16 @@ module.exports = function (arg, url) {
     }
     else {
 
-        // Anchor.
+        // Ignore Hashbangs.
+        if (tmp = url.match(/(.*?)\/#\!(.*)/)) {
+            url = tmp[1] + tmp[2];
+        }
+
+        // Hash.
         tmp = url.split(/#(.*)/);
         _l.hash = tmp[1] ? tmp[1] : undefined;
 
-        // Return anchor parts.
+        // Return hash parts.
         if (_l.hash && arg.match(/^#/)) { return _f(arg, _l.hash); }
         
         // Query
