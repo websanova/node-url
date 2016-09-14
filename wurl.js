@@ -28,24 +28,29 @@ module.exports = function (arg, url) {
             arg2 = arg.substring(1);
 
         for (var i = 0, ii = split.length; i < ii; i++) {
-            field = split[i].split(/=(.*)/);
+            field = split[i].match(/(.*?)=(.*)/);
 
-            if (field[0].replace(/\s/g, '') !== '') {
-                field[1] = _d(field[1] || '');
+            // TODO: regex should be able to handle this.
+            if ( ! field) {
+                field = [split[i], split[i], ''];
+            }
+
+            if (field[1].replace(/\s/g, '') !== '') {
+                field[2] = _d(field[2] || '');
 
                 // If we have a match just return it right away.
-                if (arg2 === field[0]) { return field[1]; }
+                if (arg2 === field[1]) { return field[2]; }
 
                 // Check for array pattern.
-                tmp = field[0].match(/(.*)\[([0-9]+)\]/);
+                tmp = field[1].match(/(.*)\[([0-9]+)\]/);
 
                 if (tmp) {
                     params[tmp[1]] = params[tmp[1]] || [];
                 
-                    params[tmp[1]][tmp[2]] = field[1];
+                    params[tmp[1]][tmp[2]] = field[2];
                 }
                 else {
-                    params[field[0]] = field[1];    
+                    params[field[1]] = field[2];
                 }
             }
         }
@@ -55,7 +60,6 @@ module.exports = function (arg, url) {
         return params[arg2];
     }
 
-    //return function(arg, url) {
     var _l = {}, tmp, tmp2;
 
     if (arg === 'tld?') { return _t(); }
@@ -66,9 +70,9 @@ module.exports = function (arg, url) {
 
     arg = arg.toString();
 
-    if (url.match(/^mailto:[^\/]/)) {
+    if (tmp = url.match(/^mailto:([^\/].+)/)) {
         _l.protocol = 'mailto';
-        _l.email = url.split(/mailto\:/)[1];
+        _l.email = tmp[1];
     }
     else {
 
@@ -78,62 +82,73 @@ module.exports = function (arg, url) {
         }
 
         // Hash.
-        tmp = url.split(/#(.*)/);
-        _l.hash = tmp[1] ? tmp[1] : undefined;
+        if (tmp = url.match(/(.*?)#(.*)/)) {
+            _l.hash = tmp[2];
+            url = tmp[1];
+        }
 
         // Return hash parts.
         if (_l.hash && arg.match(/^#/)) { return _f(arg, _l.hash); }
-        
+
         // Query
-        tmp = tmp[0].split(/\?(.*)/);
-        _l.query = tmp[1] ? tmp[1] : undefined;
+        if (tmp = url.match(/(.*?)\?(.*)/)) {
+            _l.query = tmp[2];
+            url = tmp[1];
+        }
 
         // Return query parts.
         if (_l.query && arg.match(/^\?/)) { return _f(arg, _l.query); }
 
         // Protocol.
-        tmp = tmp[0].split(/\:?\/\//);
-        _l.protocol = tmp[1] ? tmp[0].toLowerCase() : undefined;
+        if (tmp = url.match(/(.*?)\:?\/\/(.*)/)) {
+            _l.protocol = tmp[1].toLowerCase();
+            url = tmp[2];
+        }
 
         // Path.
-        tmp = (tmp[1] ? tmp[1] : tmp[0]).split(/(\/.*)/);
-        _l.path = tmp[1] ? tmp[1] : '';
+        if (tmp = url.match(/(.*?)(\/.*)/)) {
+            _l.path = tmp[2];
+            url = tmp[1];
+        }
 
         // Clean up path.
-        _l.path = _l.path.replace(/^([^\/])/, '/$1').replace(/\/$/, '');
+        _l.path = (_l.path || '').replace(/^([^\/])/, '/$1').replace(/\/$/, '');
 
         // Return path parts.
         if (arg.match(/^[\-0-9]+$/)) { arg = arg.replace(/^([^\/])/, '/$1'); }
         if (arg.match(/^\//)) { return _i(arg, _l.path.substring(1)); }
 
         // File.
-        tmp2 = _i('/-1', _l.path.substring(1));
-        tmp2 = tmp2.split(/\.(.*)/);
-
-        // Filename and fileext.
-        if (tmp2[1]) {
-            _l.file = tmp2[0] + '.' + tmp2[1];
-            _l.filename = tmp2[0];
-            _l.fileext = tmp2[1];
+        tmp = _i('/-1', _l.path.substring(1));
+        
+        if (tmp && (tmp = tmp.match(/(.*?)\.(.*)/))) {
+            _l.file = tmp[0];
+            _l.filename = tmp[1];
+            _l.fileext = tmp[2];
         }
 
         // Port.
-        tmp = tmp[0].split(/\:([0-9]+)$/);
-        _l.port = tmp[1] ? tmp[1] : undefined;
+        if (tmp = url.match(/(.*)\:([0-9]+)$/)) {
+            _l.port = tmp[2];
+            url = tmp[1];
+        }
 
         // Auth.
-        tmp = tmp[0].split(/@/);
-        _l.auth = tmp[1] ? tmp[0] : undefined;
+        if (tmp = url.match(/(.*?)@(.*)/)) {
+            _l.auth = tmp[1];
+            url = tmp[2];
+        }
 
         // User and pass.
         if (_l.auth) {
-            tmp2 = _l.auth.split(/\:(.*)/);
-            _l.user = tmp2[0];
-            _l.pass = tmp2[1];
+            tmp = _l.auth.match(/(.*)\:(.*)/);
+
+            _l.user = tmp ? tmp[1] : _l.auth;
+            _l.pass = tmp ? tmp[2] : undefined;
         }
 
         // Hostname.
-        _l.hostname = (tmp[1] ? tmp[1] : tmp[0]).toLowerCase();
+        _l.hostname = url.toLowerCase();
 
         // Return hostname parts.
         if (arg.charAt(0) === '.') { return _i(arg, _l.hostname); }
@@ -162,85 +177,4 @@ module.exports = function (arg, url) {
 
     // Default to undefined for no match.
     return undefined;
-    
-
-
-
-    /*function isNumeric(arg) {
-      return !isNaN(parseFloat(arg)) && isFinite(arg);
-    }
-
-    function decode(str) {
-      return decodeURIComponent(str.replace(/\+/g, ' '));
-    }
-    
-    var _ls = url;
-
-    if (!url) { return undefined; }
-    else if (!arg) { return _ls; }
-    else { arg = arg.toString(); }
-
-    if (_ls.substring(0,2) === '//') { _ls = 'http:' + _ls; }
-        else if (_ls.split('://').length === 1) { _ls = 'http://' + _ls; }
-
-        url = _ls.split('/');
-        var _l = {auth:''}, host = url[2].split('@');
-
-        if (host.length === 1) { host = host[0].split(':'); }
-        else { _l.auth = host[0]; host = host[1].split(':'); }
-
-        _l.protocol=url[0];
-        _l.hostname=host[0];
-        _l.port=(host[1] || ((_l.protocol.split(':')[0].toLowerCase() === 'https') ? '443' : '80'));
-        _l.pathname=( (url.length > 3 ? '/' : '') + url.slice(3, url.length).join('/').split('?')[0].split('#')[0]);
-        var _p = _l.pathname;
-
-        if (_p.charAt(_p.length-1) === '/') { _p=_p.substring(0, _p.length-1); }
-        var _h = _l.hostname, _hs = _h.split('.'), _ps = _p.split('/');
-
-        if (arg === 'hostname') { return _h; }
-        else if (arg === 'domain') {
-            if (/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/.test(_h)) { return _h; }
-            return _hs.slice(-2).join('.'); 
-        }
-        //else if (arg === 'tld') { return _hs.slice(-1).join('.'); }
-        else if (arg === 'sub') { return _hs.slice(0, _hs.length - 2).join('.'); }
-        else if (arg === 'port') { return _l.port; }
-        else if (arg === 'protocol') { return _l.protocol.split(':')[0]; }
-        else if (arg === 'auth') { return _l.auth; }
-        else if (arg === 'user') { return _l.auth.split(':')[0]; }
-        else if (arg === 'pass') { return _l.auth.split(':')[1] || ''; }
-        else if (arg === 'path') { return _l.pathname; }
-        else if (arg.charAt(0) === '.')
-        {
-            arg = arg.substring(1);
-            if(isNumeric(arg)) {arg = parseInt(arg, 10); return _hs[arg < 0 ? _hs.length + arg : arg-1] || ''; }
-        }
-        else if (isNumeric(arg)) { arg = parseInt(arg, 10); return _ps[arg < 0 ? _ps.length + arg : arg] || ''; }
-        else if (arg === 'file') { return _ps.slice(-1)[0]; }
-        else if (arg === 'filename') { return _ps.slice(-1)[0].split('.')[0]; }
-        else if (arg === 'fileext') { return _ps.slice(-1)[0].split('.')[1] || ''; }
-        else if (arg.charAt(0) === '?' || arg.charAt(0) === '#')
-        {
-            var params = _ls, param = null;
-
-            if(arg.charAt(0) === '?') { params = (params.split('?')[1] || '').split('#')[0]; }
-            else if(arg.charAt(0) === '#') { params = (params.split('#')[1] || ''); }
-
-            if(!arg.charAt(1)) { return (params ? decode(params) : params); }
-
-            arg = arg.substring(1);
-            params = params.split('&');
-
-            for(var i=0,ii=params.length; i<ii; i++)
-            {
-                param = params[i].split(/(.*?)=(.*)/).filter(Boolean);
-
-                if(param[0] === arg) { return (param[1] ? decode(param[1]) : param[1]) || ''; }
-            }
-
-            return null;
-        }
-
-    return '';*/
 };
